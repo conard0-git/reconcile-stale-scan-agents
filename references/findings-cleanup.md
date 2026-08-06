@@ -1,9 +1,12 @@
 # Findings Cleanup (optional, best-effort)
 
 After agents are deleted, the hosts they represented may still have stale
-findings in a Tenable Security Center (Tenable.sc) or Tenable Vulnerability
-Management target. This optional step scrubs those findings by importing a scan
-result that reflects the now-removed IPs.
+findings in a Tenable Security Center (Tenable.sc) target. This optional step
+scrubs those findings by importing a scan result that reflects the now-removed
+IPs. The reconciliation mechanism described here (importing a `.nessus` scan into
+a repository) is **Security Center-specific** — Tenable Vulnerability Management
+(Tenable.io) uses a different asset/findings model and is not what this path
+targets.
 
 This step is **always best-effort**. A failure here — unreachable target, bad
 credentials, unconfigured repository — must log a warning and continue. It must
@@ -62,7 +65,7 @@ API operation outside this cleanup path.)
 
 ## Configuration surface (example)
 
-- Tenable Security Center / Vulnerability Management URL + API keys (optional).
+- Tenable Security Center URL + API keys (optional).
 - One or more target repository IDs, supplied via environment/config.
 - A `.nessus` template file used to construct the import.
 

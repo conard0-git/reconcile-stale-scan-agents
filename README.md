@@ -7,7 +7,7 @@ inventory against a live **cloud fleet** (AWS EC2 in the reference
 implementation) and safely removes stale, offline, or orphaned agents — deleting
 an agent only when its host is genuinely gone, never when the host is merely
 offline but still running. It can optionally scrub the removed hosts' findings
-from Tenable Security Center / Tenable Vulnerability Management.
+from Tenable Security Center.
 
 ## Why
 
@@ -65,9 +65,9 @@ The folder must contain `SKILL.md` at its root.
 - Nessus Manager API access (URL + access/secret keys).
 - Cloud fleet read access — for AWS EC2, `ec2:DescribeInstances` across the
   accounts/regions in scope.
-- Optional: a Tenable Security Center / Vulnerability Management target for
-  findings cleanup, and `ssm:SendCommand` / `ssm:GetCommandInvocation` for the
-  optional agent-health probe.
+- Optional: a Tenable Security Center target for findings cleanup, and
+  `ssm:SendCommand` / `ssm:GetCommandInvocation` for the optional agent-health
+  probe.
 
 ## Configuration
 

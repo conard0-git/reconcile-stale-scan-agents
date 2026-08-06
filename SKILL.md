@@ -5,7 +5,7 @@ description: >-
   and safely remove stale, offline, or orphaned agents — deleting an agent only
   when its host is genuinely gone, never when the host is merely offline but
   still running. Optionally scrubs the removed hosts' findings from Tenable
-  Security Center / Tenable Vulnerability Management. Use when asked to "clean up
+  Security Center. Use when asked to "clean up
   Nessus agents," "remove stale/offline agents," "reconcile agents against EC2,"
   "find orphaned Nessus agents," "remove agents for terminated instances," or to
   keep an agent inventory in sync with a cloud environment.
@@ -37,8 +37,8 @@ without risking deletion of agents for hosts that are still in service.
 - Read access to the Nessus Manager API (URL + API access/secret keys).
 - Read access to the cloud fleet inventory (for AWS EC2:
   `ec2:DescribeInstances` across the relevant profiles/regions).
-- Optional, for findings cleanup: credentials to a Tenable Security Center /
-  Tenable Vulnerability Management target.
+- Optional, for findings cleanup: credentials to a Tenable Security Center
+  target.
 - Configuration is supplied via environment variables — no config files, no
   hardcoded secrets. See the README for the variable list.
 
@@ -46,8 +46,10 @@ without risking deletion of agents for hosts that are still in service.
 
 1. **Build the cloud inventory.** Enumerate live instances across the configured
    accounts/regions and split them into `running` and `stopped` private-IP sets,
-   retaining instance IDs and metadata. Map both primary and secondary NIC
-   private IPs so multi-NIC hosts resolve correctly.
+   keyed on each instance's **primary** private IP. Also keep an `ip -> instance`
+   map that includes secondary NIC IPs — but note it feeds metadata/probe lookups
+   and reuse detection, not the running/stopped classification (see
+   `references/aws-ec2-reconciliation.md`).
 
 2. **Fetch the agent inventory.** Pull the full agent list from Nessus Manager.
    Only **offline** agents are cleanup candidates; online agents are never
@@ -78,16 +80,19 @@ without risking deletion of agents for hosts that are still in service.
    they are alerted, never deleted.
 
 7. **Optional findings cleanup.** For hosts that were deleted, optionally push
-   their IPs to a Tenable Security Center / Tenable Vulnerability Management
-   target to scrub stale findings. Treat this as **best-effort** — a findings
-   upload failure must never abort or roll back the agent deletions. See
+   their IPs to a Tenable Security Center repository (scan-import reconciliation)
+   to scrub stale findings. Treat this as **best-effort** — a findings upload
+   failure must never abort or roll back the agent deletions. See
    `references/findings-cleanup.md`.
 
 ## Safety rules (do not violate)
 
 - Dry run is the default; nothing is deleted without explicit confirmation.
-- An offline agent whose host is still running is **kept**, always, unless the
-  user explicitly opts in to removing it.
+- An offline agent whose host is still running is **kept** unless the user
+  explicitly opts in to removing it — with one deliberate exception: if that IP
+  is now owned by an *online* agent, it is treated as IP reuse and the stale
+  offline record is deleted (reuse is evaluated before the running/stopped
+  guards).
 - Findings-cleanup uploads are best-effort and never fatal to the core cleanup.
 - Preserve multi-NIC handling — match and clean up on every IP a host owns.
 - The "skip unless overridden" cases are unlocked only by explicit opt-in
@@ -100,7 +105,8 @@ without risking deletion of agents for hosts that are still in service.
 - A dry-run report (JSON) of proposed deletions, resumable for a later confirmed
   run.
 - A per-run CSV audit log of deleted agents with summary counts.
-- A coverage report of running hosts missing an agent.
+- A console coverage report of running hosts missing an agent (the snapshot +
+  trend CSV are opt-in, not written by default).
 
 ## Distinct entry points
 
@@ -114,7 +120,7 @@ support two others worth exposing to end users:
   are gone and just wants their findings reconciled — no Nessus or cloud-fleet
   access required for that mode. See `references/findings-cleanup.md` for the
   import mechanics.
-- **Coverage-trend tracking.** On each run, snapshot the "running hosts with
-  no agent" list to a timestamped CSV and diff it against the prior snapshot,
-  so the operator can see whether coverage is improving over time. This is a
-  report-only feature; it never drives deletions.
+- **Coverage-trend tracking.** Every run prints the "running hosts with no
+  agent" list and, when a prior snapshot exists, the improving/worsening deltas.
+  Writing the timestamped snapshot + trend CSV is opt-in (a flag / menu toggle),
+  not done by default. This is a report-only feature; it never drives deletions.
