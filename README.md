@@ -77,19 +77,6 @@ cloud credentials/profiles, region list, Nessus API keys, and (optionally) a
 Tenable target through the environment. Keep every site-specific value out of
 the code so the skill stays portable.
 
-## Suggested Exchange listing metadata
-
-When you run `cyberagents-exchange-submit`, it will auto-detect most of this and
-ask you to confirm. Suggested values:
-
-- **type:** `skill`
-- **description:** Reconcile Nessus agents against a live AWS EC2 fleet and safely remove only the agents whose host is truly gone. (112 chars)
-- **tags:** `nessus`, `tenable`, `aws`, `ec2`, `vulnerability-management`, `agent-cleanup`, `inventory-reconciliation`
-- **integrations:** Tenable, AWS (confirm exact spelling against the Exchange's `integrations.json` during the interview)
-- **compatible_platforms:** Claude Code (detected from `SKILL.md` at repo root)
-- **invocation:** `/reconcile-stale-scan-agents` (from the `name` field in `SKILL.md`)
-- **license:** MIT
-
 ## License
 
 MIT — see `LICENSE`.

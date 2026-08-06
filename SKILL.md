@@ -90,6 +90,10 @@ without risking deletion of agents for hosts that are still in service.
   user explicitly opts in to removing it.
 - Findings-cleanup uploads are best-effort and never fatal to the core cleanup.
 - Preserve multi-NIC handling — match and clean up on every IP a host owns.
+- The "skip unless overridden" cases are unlocked only by explicit opt-in
+  flags (e.g. `--remove-offline-running` for the ambiguous bucket,
+  `--remove-stopped` for stopped instances). These flags are the only way to
+  weaken the safety guards and must never be defaults.
 
 ## Output
 
@@ -97,3 +101,20 @@ without risking deletion of agents for hosts that are still in service.
   run.
 - A per-run CSV audit log of deleted agents with summary counts.
 - A coverage report of running hosts missing an agent.
+
+## Distinct entry points
+
+The core workflow above is one entry point, but the underlying capabilities
+support two others worth exposing to end users:
+
+- **Standalone findings-scrub for a known IP list.** Skip the reconciliation
+  entirely and go straight to the Security Center / VM scan-import step for a
+  caller-supplied set of IPs (from a text file or command-line list). Useful
+  after any bulk decommission where the operator already knows which hosts
+  are gone and just wants their findings reconciled — no Nessus or cloud-fleet
+  access required for that mode. See `references/findings-cleanup.md` for the
+  import mechanics.
+- **Coverage-trend tracking.** On each run, snapshot the "running hosts with
+  no agent" list to a timestamped CSV and diff it against the prior snapshot,
+  so the operator can see whether coverage is improving over time. This is a
+  report-only feature; it never drives deletions.
