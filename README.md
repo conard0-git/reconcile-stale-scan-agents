@@ -17,6 +17,15 @@ deleting offline agents is dangerous — an agent can be offline while its host 
 perfectly alive. This skill reconciles against the cloud provider's own
 inventory so that only truly-dead hosts are pruned.
 
+**Canonical use case: high-churn Kubernetes / EKS environments.** When EC2
+worker nodes come up and go down daily, every terminated node leaves an offline
+Nessus agent record behind. Left alone, these pile up fast — not just cluttering
+the Nessus Manager inventory, but keeping **stale vulnerability findings alive
+in Tenable for hosts that are no longer in production**. Reconciling against
+the live EC2 fleet keeps the agent inventory (and the vuln data downstream of
+it) honest, without the risk of deleting an agent whose host is merely offline
+but still alive.
+
 ## What it does
 
 1. Builds a live inventory of the cloud fleet (running vs. stopped, all NIC IPs).
