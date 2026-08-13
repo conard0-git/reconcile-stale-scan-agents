@@ -39,6 +39,51 @@ pile up quickly and, because Tenable keeps the underlying findings tied to
 those records, they carry stale vulnerability data forward on hosts that no
 longer exist in production.
 
+## How to invoke
+
+Invoke from Claude Code by slash-command name. Bare invocation runs the
+default dry-run. Destructive modes require an explicit safety-flag opt-in.
+
+Dry run — enumerate offline agents, classify each host, propose deletions to
+a resumable JSON report, delete nothing:
+
+```
+/reconcile-stale-scan-agents
+```
+
+Confirm and delete from a saved dry-run report:
+
+```
+/reconcile-stale-scan-agents --confirm-delete from dry_run_2026-08-12.json
+```
+
+Also delete offline agents whose host is *stopped* (opt-in override):
+
+```
+/reconcile-stale-scan-agents --remove-stopped
+```
+
+Review and delete from the "offline in Nessus but running in EC2" bucket
+(opt-in override — normally these are protected):
+
+```
+/reconcile-stale-scan-agents --remove-offline-running
+```
+
+Standalone Security Center findings scrub for a caller-supplied IP list —
+skip the reconciliation entirely and just push the IPs to SC for finding
+reconciliation:
+
+```
+/reconcile-stale-scan-agents scrub findings for ~/decommissioned-ips.txt
+```
+
+Turn on the opt-in coverage-trend snapshot + CSV write:
+
+```
+/reconcile-stale-scan-agents write coverage-trend snapshot
+```
+
 ## Inputs and prerequisites
 
 - Read access to the Nessus Manager API (URL + API access/secret keys).
