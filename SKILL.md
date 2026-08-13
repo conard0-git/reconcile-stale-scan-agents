@@ -32,6 +32,13 @@ the real fleet — terminated instances still showing agents, offline records
 piling up, IPs reused by new hosts — and you want to prune the dead records
 without risking deletion of agents for hosts that are still in service.
 
+A canonical example is a **high-churn Kubernetes / EKS environment**, where
+EC2 worker nodes come up and go down daily and every terminated node leaves
+an offline Nessus agent record behind. Without reconciliation those records
+pile up quickly and, because Tenable keeps the underlying findings tied to
+those records, they carry stale vulnerability data forward on hosts that no
+longer exist in production.
+
 ## Inputs and prerequisites
 
 - Read access to the Nessus Manager API (URL + API access/secret keys).
