@@ -61,10 +61,10 @@ Clone into your skills directory:
 
 ```bash
 # Global (available in all projects)
-git clone <this-repo-url> ~/.claude/skills/reconcile-stale-scan-agents
+git clone https://github.com/conard0-git/reconcile-stale-scan-agents.git ~/.claude/skills/reconcile-stale-scan-agents
 
 # Or per-project
-git clone <this-repo-url> .claude/skills/reconcile-stale-scan-agents
+git clone https://github.com/conard0-git/reconcile-stale-scan-agents.git .claude/skills/reconcile-stale-scan-agents
 ```
 
 The folder must contain `SKILL.md` at its root.
